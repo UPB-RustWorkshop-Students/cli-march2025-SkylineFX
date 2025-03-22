@@ -1,12 +1,24 @@
 use crate::app::{App, AppResult};
-use crossterm::event::KeyEvent;
+use crossterm::event::{KeyEvent, KeyCode};
 
 /// Handles the key events and updates the state of [`App`].
-pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
+pub async fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
     match key_event.code {
-        // TODO: call the proper method on app instance for each event you want to handle
-        // eq: arrow keys pressed, enter key, scroll...
-        // TODO: define actions for quitting the app
+        KeyCode::Char('q') => {
+            app.running = false; // Quit the application when 'q' is pressed
+        }
+        KeyCode::Up => {
+            // Move up in the list of cities
+            app.scroll_up();
+        }
+        KeyCode::Down => {
+            // Move down in the list of cities
+            app.scroll_down();
+        }
+        KeyCode::Enter => {
+            // Select the current city
+            app.select_city().await;
+        }
         _ => {}
     }
     Ok(())

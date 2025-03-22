@@ -54,6 +54,9 @@ impl<B: Backend> Tui<B> {
 
         // Hint: [`Draw`]: ratatui::Terminal::draw
         // Hint: [`rendering`]: crate::ui:render
+        self.terminal.draw(|f| {
+            ui::render(f, app);
+        })?;
 
         Ok(())
     }

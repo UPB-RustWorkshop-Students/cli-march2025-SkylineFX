@@ -9,29 +9,41 @@ use ratatui::Terminal;
 #[tokio::main]
 async fn main() -> AppResult<()> {
     // Create an application.
-    // let app =
+    let mut app = App::new();
 
     // Setup the terminal
     let backend = CrosstermBackend::new(io::stderr());
     let terminal = Terminal::new(backend)?;
 
+    // Create the events publisher
+    let events = EventsPublisher::new(60);
 
-    // TODO: create the events pubisher
-    // let events_publisher= ...
-
-    // TODO: init the terminal user interface
-    // let mut tui =
+    // Init the terminal user interface
+    let mut tui = Tui::new(terminal, events);
+    tui.init()?;
 
     // Start the main loop.
-    // while app.running {
-        // TODO: Render the user interface.
+    while app.running {
+        // Render the user interface
+        tui.draw(&mut app)?;
 
-        // TODO: Handle events.
-        // Hint: wait for events and handle them
-
-    // }
-
-    // TODO: Reset the terminal if the app has been terminated
+        // Handle the events
+        match tui.events.next().await {
+            Ok(event) => match event {
+                Event::Key(key_event) => {
+                    handle_key_events(key_event, &mut app).await?;
+                }
+                _ => {}
+            },
+            Err(e) => {
+                eprintln!("Error: {}", e);
+                app.running = false;
+            }
+        }
+    }
+    
+    // Reset the terminal if the app has been terminated
+    let _ = tui.exit();
 
     Ok(())
 }

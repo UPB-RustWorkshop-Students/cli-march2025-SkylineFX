@@ -52,17 +52,17 @@ impl EventsPublisher {
 
                 // Concurrent execution branches, first event to finish is returned
                 tokio::select! {
-                  _ = tick_delay => {
-                    _sender.send(Event::Tick).unwrap();
-                  }
-                  Some(Ok(evt)) = crossterm_event => {
-                    match evt {
-                      _ => {
-                        // TODO: create an arm for each terminal event you are interested into
-                        // eq: arrow keys pressed, enter key, scroll...
-                      }
+                    _ = tick_delay => {
+                        _sender.send(Event::Tick).unwrap();
                     }
-                  }
+                    Some(Ok(evt)) = crossterm_event => {
+                        match evt {
+                            CrosstermEvent::Key(key_event) => {
+                                _sender.send(Event::Key(key_event)).unwrap();
+                            }
+                            _ => {}
+                        }
+                    }
                 }
             }
         });

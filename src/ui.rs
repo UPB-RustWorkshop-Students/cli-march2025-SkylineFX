@@ -1,29 +1,38 @@
+use ratatui::widgets::{Block, Borders, List, ListItem, Paragraph};
+use ratatui::layout::{Layout, Constraint, Direction};
 use ratatui::Frame;
 use crate::app::App;
 
 /// Renders the user interface widgets.
-pub fn render(app: &mut App, frame: &mut Frame) {
-    // This is where you add new widgets.
-    // See the following resources:
-    // - https://docs.rs/ratatui/latest/ratatui/widgets/index.html
-    // - https://github.com/ratatui/ratatui/tree/main/ratatui/examples
+pub fn render(frame: &mut Frame, app: &mut App) {
+    // Split the layout into two areas
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .margin(1)
+        .constraints(
+            [
+                Constraint::Percentage(50),
+                Constraint::Percentage(50),
+            ].as_ref()
+        )
+        .split(frame.size());
 
-    // TODO: Split the layout
-    // let [area1, area2, area3 ...] =
+    // Get the list of cities
+    let cities: Vec<ListItem> = app.cities.iter().map(|city| {
+        ListItem::new(city.clone())
+    }).collect();
+    let list_component = List::new(cities)
+        .block(Block::default().borders(Borders::ALL).title("Cities"))
+        .highlight_symbol(">>")
+        .highlight_style(ratatui::style::Style::default().fg(ratatui::style::Color::Yellow));
 
-    // TODO: get the list of cities
-    // let cities: Vec<ListItem> =
-    // let list_component =
+    // Render the list of cities
+    frame.render_stateful_widget(list_component, chunks[0], &mut app.list_state);
 
-    // TODO: render the list of cities
-    // frame.render_widget(list_component, area);
+    // Create the weather info component
+    let weather_info = Paragraph::new(app.weather_info.clone())
+        .block(Block::default().borders(Borders::ALL).title("Weather Info"));
 
-
-    // TODO: Create the weather info component
-    // let weather_info =
-
-    // TODO: Render the weather info component
-    // frame.render_widget(weather_info, area);
-
-
+    // Render the weather info component
+    frame.render_widget(weather_info, chunks[1]);
 }
